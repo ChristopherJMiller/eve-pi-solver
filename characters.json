@@ -1,0 +1,38 @@
+[
+  {
+    "name": "character_1",
+    "planets": 5,
+    "skills": {
+      "command_center_upgrades": 5,
+      "interplanetary_consolidation": 5,
+      "remote_sensing": 5,
+      "planetary_production": 5,
+      "planetology": 5,
+      "advanced_planetology": 5
+    }
+  },
+  {
+    "name": "character_2",
+    "planets": 5,
+    "skills": {
+      "command_center_upgrades": 5,
+      "interplanetary_consolidation": 5,
+      "remote_sensing": 5,
+      "planetary_production": 5,
+      "planetology": 5,
+      "advanced_planetology": 5
+    }
+  },
+  {
+    "name": "character_3",
+    "planets": 5,
+    "skills": {
+      "command_center_upgrades": 5,
+      "interplanetary_consolidation": 5,
+      "remote_sensing": 5,
+      "planetary_production": 5,
+      "planetology": 5,
+      "advanced_planetology": 5
+    }
+  }
+] 

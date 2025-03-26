@@ -1,0 +1,60 @@
+{
+  "plan": [
+    {
+      "character":"character_1",
+      "import": ["fertilizer", "polytextiles", "synthetic_oil", "superconductors" ],
+      "mine": ["base_metals" ],
+      "output":"nano_factory",
+      "planet":"planet_1",
+      "type":"barren"
+    },
+    {
+      "character":"character_1",
+      "import": [],
+      "mine": ["complex_organisms", "micro_organisms" ],
+      "output":"fertilizer",
+      "planet":"planet_3",
+      "type":"temperate"
+    },
+    {
+      "character":"character_2",
+      "import": [],
+      "mine": ["autotrophs", "carbon_compounds" ],
+      "output":"polytextiles",
+      "planet":"planet_3",
+      "type":"temperate"
+    },
+    {
+      "character":"character_1",
+      "import": [],
+      "mine": ["noble_gas", "ionic_solutions" ],
+      "output":"synthetic_oil",
+      "planet":"planet_4",
+      "type":"gas"
+    },
+    {
+      "character":"character_2",
+      "import": [],
+      "mine": ["aqueous_liquids" ],
+      "output":"water",
+      "planet":"planet_5",
+      "type":"oceanic"
+    },
+    {
+      "character":"character_2",
+      "import": [],
+      "mine": ["suspended_plasma" ],
+      "output":"plasmoids",
+      "planet":"planet_4",
+      "type":"gas"
+    },
+    {
+      "character":"character_2",
+      "import": ["water", "plasmoids" ],
+      "mine": [],
+      "output":"superconductors",
+      "planet":"planet_1",
+      "type":"barren"
+    }
+  ]
+}
