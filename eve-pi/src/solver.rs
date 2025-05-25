@@ -31,196 +31,232 @@ impl<'a> Solver<'a> {
         Self { repository }
     }
 
-    /// Generate a production plan for a target product
+    /// Generate a production plan for a target product using backtracking
     pub fn solve(&self, target_product: &str) -> Result<ProductionPlan, SolverError> {
         // Verify the target product exists
-        let product = self
+        let _product = self
             .repository
             .get_product_by_name(target_product)
             .ok_or_else(|| SolverError::ProductNotFound(target_product.to_string()))?;
 
         // Get all available planets and characters
-        let planets = self.repository.get_all_planets();
-        let characters = self.repository.get_all_characters();
+        let _planets = self.repository.get_all_planets();
+        let _characters = self.repository.get_all_characters();
 
-        // Start with an empty plan
+        // Start with empty state
         let mut assignments = Vec::new();
         let mut assigned_planets = HashSet::new();
         let mut character_assignments: HashMap<String, Vec<String>> = HashMap::new();
 
-        // First, handle the main factory for the target product
-        self.handle_main_factory(
-            target_product,
+        // Collect all products we need to produce (starting with target)
+        let mut products_to_produce = HashSet::new();
+        self.collect_required_products(target_product, &mut products_to_produce)?;
+
+        // Try to solve using backtracking
+        if self.solve_recursive(
+            &products_to_produce.into_iter().collect::<Vec<_>>(),
+            0,
             &mut assignments,
             &mut assigned_planets,
             &mut character_assignments,
-        )?;
-
-        // Then, handle all the inputs recursively
-        let mut imported_inputs: HashSet<String> = assignments
-            .iter()
-            .flat_map(|a| a.imported_inputs.clone())
-            .collect();
-
-        while !imported_inputs.is_empty() {
-            let current_input = imported_inputs.iter().next().cloned().ok_or_else(|| {
-                SolverError::NoSolutionFound("Failed to process all inputs".to_string())
-            })?;
-
-            imported_inputs.remove(&current_input);
-
-            // Skip if this input is already produced by some planet
-            if assignments.iter().any(|a| a.output == current_input) {
-                continue;
-            }
-
-            // Handle this input
-            self.handle_input(
-                &current_input,
-                &mut assignments,
-                &mut assigned_planets,
-                &mut character_assignments,
-                &mut imported_inputs,
-            )?;
+        ) {
+            Ok(ProductionPlan { assignments })
+        } else {
+            Err(SolverError::NoSolutionFound(format!(
+                "Could not find a complete solution for {}",
+                target_product
+            )))
         }
-
-        Ok(ProductionPlan { assignments })
     }
 
-    /// Handle the main factory for the target product
-    fn handle_main_factory(
+    /// Collect all products that need to be produced (including dependencies)
+    fn collect_required_products(
         &self,
-        target_product: &str,
-        assignments: &mut Vec<PlanetAssignment>,
-        assigned_planets: &mut HashSet<String>,
-        character_assignments: &mut HashMap<String, Vec<String>>,
+        product_name: &str,
+        products_to_produce: &mut HashSet<String>,
     ) -> Result<(), SolverError> {
-        // Get all planets and characters
-        let planets = self.repository.get_all_planets();
-        let characters = self.repository.get_all_characters();
-
-        // Find a suitable planet and character for the main factory
-        for planet in &planets {
-            // Skip already assigned planets
-            if assigned_planets.contains(&planet.id) {
-                continue;
-            }
-
-            // Find valid factory configurations for this planet
-            let configs = factory_planet(self.repository, planet.planet_type, target_product);
-            if configs.is_empty() {
-                continue;
-            }
-
-            // Use the first valid configuration
-            let config = &configs[0];
-
-            // Find a character that can manage this planet
-            for character in &characters {
-                let character_planets = character_assignments
-                    .entry(character.name.clone())
-                    .or_insert_with(Vec::new);
-
-                // Skip if character has reached planet limit
-                if character_planets.len() >= character.planets {
-                    continue;
-                }
-
-                // Assign the planet to this character
-                assignments.push(PlanetAssignment {
-                    character: character.name.clone(),
-                    planet: planet.id.clone(),
-                    planet_type: planet.planet_type,
-                    imported_inputs: config.imported_inputs.clone(),
-                    mined_inputs: config.mined_inputs.clone(),
-                    output: target_product.to_string(),
-                });
-
-                assigned_planets.insert(planet.id.clone());
-                character_planets.push(planet.id.clone());
-
-                return Ok(());
-            }
+        // Skip if already processed
+        if products_to_produce.contains(product_name) {
+            return Ok(());
         }
 
-        Err(SolverError::NoSolutionFound(format!(
-            "No suitable planet/character found for {}",
-            target_product
-        )))
-    }
+        // Add this product to the set
+        products_to_produce.insert(product_name.to_string());
 
-    /// Handle a single input product
-    fn handle_input(
-        &self,
-        input: &str,
-        assignments: &mut Vec<PlanetAssignment>,
-        assigned_planets: &mut HashSet<String>,
-        character_assignments: &mut HashMap<String, Vec<String>>,
-        imported_inputs: &mut HashSet<String>,
-    ) -> Result<(), SolverError> {
         // Get the product details
         let product = self
             .repository
-            .get_product_by_name(input)
-            .ok_or_else(|| SolverError::ProductNotFound(input.to_string()))?;
+            .get_product_by_name(product_name)
+            .ok_or_else(|| SolverError::ProductNotFound(product_name.to_string()))?;
+
+        // For each planet type, check what factory configurations are available
+        let planet_types = vec![
+            PlanetType::Barren,
+            PlanetType::Gas,
+            PlanetType::Ice,
+            PlanetType::Lava,
+            PlanetType::Oceanic,
+            PlanetType::Plasma,
+            PlanetType::Storm,
+            PlanetType::Temperate,
+        ];
+
+        let mut found_config = false;
+        for planet_type in planet_types {
+            let configs = factory_planet(self.repository, planet_type, product_name);
+            if !configs.is_empty() {
+                found_config = true;
+                // For the first valid config, collect imported inputs recursively
+                let config = &configs[0];
+                for imported_input in &config.imported_inputs {
+                    self.collect_required_products(imported_input, products_to_produce)?;
+                }
+                break; // Found at least one config, that's enough for collection
+            }
+        }
+
+        if !found_config {
+            return Err(SolverError::NoSolutionFound(format!(
+                "No factory configuration found for product: {}",
+                product_name
+            )));
+        }
+
+        Ok(())
+    }
+
+    /// Recursive backtracking solver
+    fn solve_recursive(
+        &self,
+        products: &[String],
+        product_index: usize,
+        assignments: &mut Vec<PlanetAssignment>,
+        assigned_planets: &mut HashSet<String>,
+        character_assignments: &mut HashMap<String, Vec<String>>,
+    ) -> bool {
+        // Base case: all products assigned
+        if product_index >= products.len() {
+            return true;
+        }
+
+        let current_product = &products[product_index];
+
+        // Skip if this product is already produced by an existing assignment
+        if assignments.iter().any(|a| a.output == *current_product) {
+            return self.solve_recursive(
+                products,
+                product_index + 1,
+                assignments,
+                assigned_planets,
+                character_assignments,
+            );
+        }
 
         // Get all planets and characters
         let planets = self.repository.get_all_planets();
         let characters = self.repository.get_all_characters();
 
-        // Find a suitable planet and character for producing this input
+        // Try each planet
         for planet in &planets {
             // Skip already assigned planets
             if assigned_planets.contains(&planet.id) {
                 continue;
             }
 
-            // Find valid factory configurations for this planet
-            let configs = factory_planet(self.repository, planet.planet_type, input);
+            // Get valid factory configurations for this planet
+            let configs = factory_planet(self.repository, planet.planet_type, current_product);
             if configs.is_empty() {
                 continue;
             }
 
-            // Use the first valid configuration
-            let config = &configs[0];
+            // Try each configuration
+            for config in &configs {
+                // Try each character
+                for character in &characters {
+                    // Check if character has reached planet limit
+                    let current_planet_count = character_assignments
+                        .get(&character.name)
+                        .map(|planets| planets.len())
+                        .unwrap_or(0);
 
-            // Find a character that can manage this planet
-            for character in &characters {
-                let character_planets = character_assignments
-                    .entry(character.name.clone())
-                    .or_insert_with(Vec::new);
+                    if current_planet_count >= character.planets {
+                        continue;
+                    }
 
-                // Skip if character has reached planet limit
-                if character_planets.len() >= character.planets {
-                    continue;
+                    // Check if all imported inputs are already being produced or can be produced
+                    let mut can_satisfy_inputs = true;
+                    for imported_input in &config.imported_inputs {
+                        // Check if this input is already being produced
+                        let already_produced =
+                            assignments.iter().any(|a| a.output == *imported_input);
+
+                        // If not already produced, check if it can be produced
+                        if !already_produced {
+                            let mut temp_products = products.to_vec();
+                            if !temp_products.contains(imported_input) {
+                                temp_products.push(imported_input.clone());
+                            }
+                            // This is a simplified check - we assume if the product is in our list, it can be produced
+                            if !temp_products.contains(imported_input) {
+                                can_satisfy_inputs = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if !can_satisfy_inputs {
+                        continue;
+                    }
+
+                    // Try this assignment
+                    let assignment = PlanetAssignment {
+                        character: character.name.clone(),
+                        planet: planet.id.clone(),
+                        planet_type: planet.planet_type,
+                        imported_inputs: config.imported_inputs.clone(),
+                        mined_inputs: config.mined_inputs.clone(),
+                        output: current_product.clone(),
+                    };
+
+                    // Make the assignment
+                    assignments.push(assignment);
+                    assigned_planets.insert(planet.id.clone());
+
+                    // Update character assignments
+                    character_assignments
+                        .entry(character.name.clone())
+                        .or_insert_with(Vec::new)
+                        .push(planet.id.clone());
+
+                    // Recursively try to solve the rest
+                    if self.solve_recursive(
+                        products,
+                        product_index + 1,
+                        assignments,
+                        assigned_planets,
+                        character_assignments,
+                    ) {
+                        return true; // Found a solution!
+                    }
+
+                    // Backtrack: undo the assignment
+                    assignments.pop();
+                    assigned_planets.remove(&planet.id);
+
+                    // Remove from character assignments
+                    if let Some(character_planets) = character_assignments.get_mut(&character.name)
+                    {
+                        character_planets.pop();
+                        if character_planets.is_empty() {
+                            character_assignments.remove(&character.name);
+                        }
+                    }
                 }
-
-                // Assign the planet to this character
-                assignments.push(PlanetAssignment {
-                    character: character.name.clone(),
-                    planet: planet.id.clone(),
-                    planet_type: planet.planet_type,
-                    imported_inputs: config.imported_inputs.clone(),
-                    mined_inputs: config.mined_inputs.clone(),
-                    output: input.to_string(),
-                });
-
-                assigned_planets.insert(planet.id.clone());
-                character_planets.push(planet.id.clone());
-
-                // Add any new imported inputs to the set
-                for new_input in &config.imported_inputs {
-                    imported_inputs.insert(new_input.clone());
-                }
-
-                return Ok(());
             }
         }
 
-        Err(SolverError::NoSolutionFound(format!(
-            "No suitable planet/character found for {}",
-            input
-        )))
+        // No valid assignment found for this product
+        false
     }
 }
 
