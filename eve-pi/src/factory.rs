@@ -2,7 +2,6 @@ use crate::domain::{
     planet_resource_map, requires_p4_mined, FactoryConfiguration, PlanetType, ProductTier,
 };
 use crate::repository::{ProductRepository, Repository};
-use std::collections::HashMap;
 use std::collections::HashSet;
 use std::error::Error;
 use std::fmt;
@@ -536,6 +535,7 @@ mod tests {
     use super::*;
     use crate::domain::{PlanetType, ProductTier};
     use crate::repository::MemoryRepository;
+    use std::collections::HashMap;
 
     // Helper function to find a P4 product that doesn't require mining
     fn find_p4_product_without_mining(repo: &MemoryRepository) -> Option<String> {

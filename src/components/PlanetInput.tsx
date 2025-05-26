@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import type { Planet } from "../utils/prologService";
-import { PrologService } from "../utils/prologService";
+import type { Planet } from "../utils/wasmService";
+import { PiSolverClient } from "../utils/wasmService";
 
 interface PlanetInputProps {
   onAddPlanet: (planet: Planet) => void;
@@ -13,7 +13,6 @@ export default function PlanetInput({
 }: PlanetInputProps) {
   const [id, setId] = useState("");
   const [type, setType] = useState("");
-  const [resources, setResources] = useState<string[]>([]);
   const [availableTypes, setAvailableTypes] = useState<string[]>([]);
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
   const [availableResources, setAvailableResources] = useState<string[]>([]);
@@ -23,8 +22,8 @@ export default function PlanetInput({
   useEffect(() => {
     const loadPlanetTypes = async () => {
       try {
-        const prologService = PrologService.getInstance();
-        const types = await prologService.getPlanetTypes();
+        const piSolverClient = PiSolverClient.getInstance();
+        const types = await piSolverClient.getPlanetTypes();
         setAvailableTypes(types);
         setIsLoading(false);
       } catch (error) {
@@ -54,7 +53,7 @@ export default function PlanetInput({
         "aqueous_liquids",
         "carbon_compounds",
         "complex_organisms",
-        "microorganisms",
+        "micro_organisms",
         "autotrophs",
       ],
       gas: [
@@ -64,7 +63,7 @@ export default function PlanetInput({
         "reactive_gas",
         "suspended_plasma",
       ],
-      oceanic: ["aqueous_liquids", "microorganisms", "planktic_colonies"],
+      oceanic: ["aqueous_liquids", "micro_organisms", "planktic_colonies"],
       ice: ["noble_gas", "non_cs_crystals"],
       plasma: [
         "base_metals",

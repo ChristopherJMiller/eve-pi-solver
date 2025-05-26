@@ -9,12 +9,24 @@ mod wasm;
 pub use wasm::format_production_plan;
 pub use wasm::PiSolver;
 
+// Initialize WASM module with panic hook
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::*;
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(start)]
+pub fn main() {
+    utils::set_panic_hook();
+}
+
 #[cfg(test)]
 mod tests {
     use crate::repository::MemoryRepository;
     use crate::solver::Solver;
     use std::fs;
+    use tracing_test::traced_test;
 
+    #[traced_test]
     #[test]
     fn test_basic_production_plan() {
         // Create a new memory repository

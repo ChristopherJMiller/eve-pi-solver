@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "react";
-import type { ProductionPlan, ProductionStep } from "../utils/prologService";
+import type { ProductionPlan, ProductionStep } from "../utils/wasmService";
 
 interface ResultDisplayProps {
   plan: ProductionPlan | null;

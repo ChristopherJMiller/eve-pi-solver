@@ -60,12 +60,27 @@ pub struct Planet {
     pub resources: Vec<String>, // Names of P0 resources available on this planet
 }
 
+/// Represents character skills for planetary industry
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CharacterSkills {
+    pub command_center_upgrades: u8,
+    pub interplanetary_consolidation: u8,
+    #[serde(default)]
+    pub remote_sensing: Option<u8>,
+    #[serde(default)]
+    pub planetary_production: Option<u8>,
+    #[serde(default)]
+    pub planetology: Option<u8>,
+    #[serde(default)]
+    pub advanced_planetology: Option<u8>,
+}
+
 /// Represents a character in EVE Online
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Character {
     pub name: String,
-    pub planets: usize,              // Number of planets the character can manage
-    pub skills: HashMap<String, u8>, // Skill levels for different planetary skills
+    pub planets: usize,          // Number of planets the character can manage
+    pub skills: CharacterSkills, // Skill levels for different planetary skills
 }
 
 /// Represents a factory configuration for a planet

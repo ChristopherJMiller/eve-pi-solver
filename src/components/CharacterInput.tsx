@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Character } from "../utils/prologService";
+import type { Character } from "../utils/wasmService";
 
 interface CharacterInputProps {
   onAddCharacter: (character: Character) => void;

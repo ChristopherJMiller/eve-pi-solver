@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { PrologService } from "../utils/prologService";
+import { PiSolverClient } from "../utils/wasmService";
 
 interface ProductSelectorProps {
   onSelectProduct: (product: string) => void;
@@ -19,8 +19,8 @@ export default function ProductSelector({
   useEffect(() => {
     const loadProductTiers = async () => {
       try {
-        const prologService = PrologService.getInstance();
-        const tiers = await prologService.getProductTiers();
+        const piSolverClient = PiSolverClient.getInstance();
+        const tiers = await piSolverClient.getProductTiers();
         setProductTiers(tiers);
         setIsLoading(false);
       } catch (error) {
@@ -39,8 +39,8 @@ export default function ProductSelector({
     const loadProducts = async () => {
       try {
         setIsLoading(true);
-        const prologService = PrologService.getInstance();
-        const products = await prologService.getProductsByTier(selectedTier);
+        const piSolverClient = PiSolverClient.getInstance();
+        const products = await piSolverClient.getProductsByTier(selectedTier);
         setProducts(products);
         setIsLoading(false);
       } catch (error) {

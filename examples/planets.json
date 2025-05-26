@@ -1,51 +1,41 @@
 [
   {
-    "id": "planet_1",
+    "id": "planet_barren",
     "planet_type": "Barren",
-    "resources": ["base_metals", "heavy_metals", "noble_metals", "chiral_structures"]
+    "resources": ["base_metals", "heavy_metals", "noble_metals"]
   },
   {
-    "id": "planet_2",
-    "planet_type": "Lava",
-    "resources": ["base_metals", "felsic_magma", "heavy_metals"]
-  },
-  {
-    "id": "planet_3",
-    "planet_type": "Temperate",
-    "resources": ["aqueous_liquids", "carbon_compounds", "complex_organisms", "micro_organisms", "autotrophs"]
-  },
-  {
-    "id": "planet_4",
+    "id": "planet_gas",
     "planet_type": "Gas",
     "resources": ["carbon_compounds", "ionic_solutions", "noble_gas", "reactive_gas", "suspended_plasma"]
   },
   {
-    "id": "planet_5",
-    "planet_type": "Oceanic",
-    "resources": ["aqueous_liquids", "micro_organisms", "planktic_colonies"]
-  },
-  {
-    "id": "planet_6",
+    "id": "planet_ice",
     "planet_type": "Ice",
     "resources": ["noble_gas", "non_cs_crystals"]
   },
   {
-    "id": "planet_7",
-    "planet_type": "Plasma",
-    "resources": ["base_metals", "heavy_metals", "noble_metals", "non_cs_crystals", "suspended_plasma", "chiral_structures"]
+    "id": "planet_lava",
+    "planet_type": "Lava",
+    "resources": ["base_metals", "felsic_magma", "heavy_metals"]
   },
   {
-    "id": "planet_8",
+    "id": "planet_oceanic",
+    "planet_type": "Oceanic",
+    "resources": ["aqueous_liquids", "micro_organisms", "planktic_colonies"]
+  },
+  {
+    "id": "planet_plasma",
+    "planet_type": "Plasma",
+    "resources": ["base_metals", "heavy_metals", "noble_metals", "non_cs_crystals", "suspended_plasma"]
+  },
+  {
+    "id": "planet_storm",
     "planet_type": "Storm",
     "resources": ["ionic_solutions", "reactive_gas", "suspended_plasma"]
   },
   {
-    "id": "planet_9",
-    "planet_type": "Barren",
-    "resources": ["base_metals", "heavy_metals", "noble_metals", "chiral_structures"]
-  },
-  {
-    "id": "planet_10",
+    "id": "planet_temperate",
     "planet_type": "Temperate",
     "resources": ["aqueous_liquids", "carbon_compounds", "complex_organisms", "micro_organisms", "autotrophs"]
   }

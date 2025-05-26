@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { PrologService } from "./utils/prologService";
-import type { Character, Planet, ProductionPlan } from "./utils/prologService";
+import { PiSolverClient } from "./utils/wasmService";
+import type { Character, Planet, ProductionPlan } from "./utils/wasmService";
 import Header from "./components/Header";
 import CharacterInput from "./components/CharacterInput";
 import PlanetInput from "./components/PlanetInput";
@@ -18,22 +18,22 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
 
-  // Initialize Prolog service
+  // Initialize PI Solver service
   useEffect(() => {
-    const initProlog = async () => {
+    const initPiSolver = async () => {
       try {
-        const prologService = PrologService.getInstance();
-        await prologService.initialize();
+        const piSolverClient = PiSolverClient.getInstance();
+        await piSolverClient.initialize();
         setIsReady(true);
       } catch (error) {
-        console.error("Failed to initialize Prolog service:", error);
+        console.error("Failed to initialize PI Solver service:", error);
         setError(
-          "Failed to initialize Prolog service. Please refresh the page."
+          "Failed to initialize PI Solver service. Please refresh the page."
         );
       }
     };
 
-    initProlog();
+    initPiSolver();
   }, []);
 
   const handleAddCharacter = (character: Character) => {
@@ -62,8 +62,8 @@ function App() {
     setIsCalculating(true);
 
     try {
-      const prologService = PrologService.getInstance();
-      const plan = await prologService.calculateProductionPlan(
+      const piSolverClient = PiSolverClient.getInstance();
+      const plan = await piSolverClient.calculateProductionPlan(
         characters,
         planets,
         selectedProduct
@@ -110,28 +110,12 @@ function App() {
 
     const samplePlanets: Planet[] = [
       {
-        id: "planet_1",
+        id: "planet_barren",
         type: "barren",
-        resources: [
-          "base_metals",
-          "heavy_metals",
-          "noble_metals",
-          "chiral_structures",
-        ],
+        resources: ["base_metals", "heavy_metals", "noble_metals"],
       },
       {
-        id: "planet_3",
-        type: "temperate",
-        resources: [
-          "aqueous_liquids",
-          "carbon_compounds",
-          "complex_organisms",
-          "microorganisms",
-          "autotrophs",
-        ],
-      },
-      {
-        id: "planet_4",
+        id: "planet_gas",
         type: "gas",
         resources: [
           "carbon_compounds",
@@ -142,9 +126,46 @@ function App() {
         ],
       },
       {
-        id: "planet_5",
+        id: "planet_ice",
+        type: "ice",
+        resources: ["noble_gas", "non_cs_crystals"],
+      },
+      {
+        id: "planet_lava",
+        type: "lava",
+        resources: ["base_metals", "felsic_magma", "heavy_metals"],
+      },
+      {
+        id: "planet_oceanic",
         type: "oceanic",
-        resources: ["aqueous_liquids", "microorganisms", "planktic_colonies"],
+        resources: ["aqueous_liquids", "micro_organisms", "planktic_colonies"],
+      },
+      {
+        id: "planet_plasma",
+        type: "plasma",
+        resources: [
+          "base_metals",
+          "heavy_metals",
+          "noble_metals",
+          "non_cs_crystals",
+          "suspended_plasma",
+        ],
+      },
+      {
+        id: "planet_storm",
+        type: "storm",
+        resources: ["ionic_solutions", "reactive_gas", "suspended_plasma"],
+      },
+      {
+        id: "planet_temperate",
+        type: "temperate",
+        resources: [
+          "aqueous_liquids",
+          "carbon_compounds",
+          "complex_organisms",
+          "micro_organisms",
+          "autotrophs",
+        ],
       },
     ];
 

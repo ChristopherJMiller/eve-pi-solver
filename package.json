@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "npm run build:wasm && vite",
+    "build": "npm run build:wasm && tsc -b && vite build",
+    "build:wasm": "cd eve-pi && wasm-pack build --target web --out-dir ../pkg",
     "lint": "eslint .",
     "preview": "vite preview"
   },
